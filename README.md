@@ -16,13 +16,14 @@ A token launch radar for [make.fun's token-radar-01 bounty](https://make.fun/bou
 - `screenshots/` — the board, a detail view, and a filtered view.
 - `dossier.json` — the summary the judge reads, built with the vendored make.fun library.
 
-## The model (radar-2)
+## The model (radar-3)
 
 Implied value follows from the snapshot's own figures, priced at the multiple the market already pays for a token in the same category:
 
 ```
 implied = round( tvl_usd x multiple(category)
                x (1 + clamp(change_7d, -60, 120) / 100 x 0.5)
+               x (1 + clamp(change_7d - median(change_7d in category), -40, 40) / 100 x 0.3)
                x (0.6 + min(age_days, 1095) / 1095 x 0.4) )
 ```
 
@@ -32,11 +33,11 @@ implied = round( tvl_usd x multiple(category)
 multiple = (n x median + 4 x overall) / (n + 4), clamped to [0.01, 1.00]
 ```
 
-A category with no live-token comps takes the overall median. No protocol name is special-cased: the same function scores every row. The dashboard states every multiple, with the comp count, so the pricing is visible, not hidden.
+A category with no live-token comps takes the overall median. Momentum is the protocol's seven-day move against its own category's median move: growing while the category is flat is worth more than growing with the crowd. No protocol name is special-cased: the same function scores every row. The dashboard states every multiple, with the comp count, so the pricing is visible, not hidden.
 
 ## Farm plans
 
-Each row carries a six-step farm plan derived from the protocol's own record — its category, chains, TVL and age — with a cost and a time for every step. The plan is a derivation, never a hand-written list of names.
+Each row carries an eight-step farm plan derived from the protocol's own record — its category, chains, TVL and age — with a cost and a time for every step: a fresh wallet, the main position, a second on-chain action so the wallet is not a one-transaction farmer, a weekly action, the hold, an age-specific step (early protocols: watch for the points announcement; old ones: vote once), the claim check, and a farm log with a position cap. Gas costs follow the chain the protocol lives on. The plan is a derivation, never a hand-written list of names.
 
 ## Running it
 
