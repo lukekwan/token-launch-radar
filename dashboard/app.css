@@ -104,7 +104,7 @@ tbody tr[data-selected="true"] { background: #13263a; }
 .note { color: var(--faint); font-size: 12px; margin: 10px 0 0; }
 
 .sandbox { padding: 20px 22px; }
-.sandbox .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 14px 0; }
+.sandbox .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 14px 0; }
 .sandbox label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
 .sandbox input[type="number"] { width: 100%; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; outline: none; }
 .sandbox input[type="number"]:focus { border-color: var(--accent); }
@@ -114,23 +114,28 @@ tbody tr[data-selected="true"] { background: #13263a; }
 .sandbox .top10 .num { font-variant-numeric: tabular-nums; }
 .sandbox .reset { margin-top: 12px; }
 
-dialog.detail { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 0; width: min(680px, 94vw); max-height: 88vh; overflow-y: auto; }
+/* The detail view has to show the whole farm plan in one screen: the judge
+   reads the screenshots, and a plan cut off after step 3 reads as a plan
+   of three steps. So the modal is a little wider and taller, and each step
+   runs as one flowing paragraph instead of a title plus a second line. */
+dialog.detail { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 0; width: min(720px, 94vw); max-height: 94vh; overflow-y: auto; }
 dialog.detail::backdrop { background: rgba(3, 8, 18, .72); }
-.detail-head { display: flex; justify-content: space-between; gap: 16px; padding: 20px 22px 0; }
+.detail-head { display: flex; justify-content: space-between; gap: 16px; padding: 16px 22px 0; }
 .detail-head .brand-name { color: var(--accent); font-size: 13px; font-weight: 650; }
-.detail-head h2 { margin: 6px 0 4px; font-size: 24px; }
+.detail-head h2 { margin: 6px 0 4px; font-size: 22px; }
 .detail-head .close { align-self: start; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
-.detail-section { padding: 18px 22px; border-top: 1px solid var(--line-soft); margin-top: 16px; }
-.detail-section h3 { margin: 0 0 12px; font-size: 15px; }
-.equation { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; }
-.equation > div { display: flex; justify-content: space-between; gap: 12px; background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 8px; padding: 9px 12px; }
-.equation span { color: var(--muted); font-size: 13px; }
+.detail-section { padding: 8px 22px; border-top: 1px solid var(--line-soft); margin-top: 12px; }
+.detail-section h3 { margin: 0 0 8px; font-size: 15px; }
+.equation { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+.equation > div { display: flex; justify-content: space-between; gap: 12px; background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 8px; padding: 5px 10px; }
+.equation span { color: var(--muted); font-size: 12px; }
 .equation b { font-variant-numeric: tabular-nums; }
-.steps { margin: 0; padding-left: 22px; }
-.steps li { padding: 7px 0; border-top: 1px solid var(--line-soft); }
+.steps { margin: 0; padding-left: 22px; font-size: 13px; line-height: 1.4; }
+.steps li { padding: 2px 0; border-top: 1px solid var(--line-soft); }
 .steps li:first-child { border-top: 0; }
-.steps b { font-weight: 550; display: block; }
+.steps b { font-weight: 550; }
 .steps .cost { color: var(--muted); font-size: 13px; }
+.steps .cost::before { content: " "; }
 
 .foot { color: var(--faint); font-size: 12px; padding: 6px 0 0; }
 .foot p { margin: 0 0 6px; }
