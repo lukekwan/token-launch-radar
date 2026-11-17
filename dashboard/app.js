@@ -1,4 +1,4 @@
-// Token Radar's dashboard (radar-3). It reads window.RADAR (written beside dashboard/ by main.ts) and
+// Token Radar's dashboard (radar-4). It reads window.RADAR (written beside dashboard/ by main.ts) and
 // renders the ranked board, a filterable table, a per-protocol detail drawer with the model's own inputs
 // and the protocol's farm plan, the category multiples the model priced from, and a sandbox that re-runs
 // the model under different constants. No network: every byte it shows is in data.js.
@@ -145,6 +145,48 @@
     if (c.indexOf('insurance') >= 0) return 'Open a second, smaller cover on a different pool so the wallet shows more than one policy.';
     return 'Do one more on-chain action in the app, such as a swap or a vote, so the wallet is not a one-transaction farmer.';
   }
+  function positionNounFor(p) {
+    var c = (p.category || '').toLowerCase();
+    if (c.indexOf('lend') >= 0 || c.indexOf('cdp') >= 0 || c.indexOf('collateral') >= 0) return 'the supply position';
+    if (c.indexOf('dex') >= 0 || c.indexOf('yield') >= 0 || c.indexOf('leveraged farm') >= 0) return 'the LP position';
+    if (c.indexOf('bridge') >= 0) return 'the bridged funds';
+    if (c.indexOf('staking') >= 0 || c.indexOf('restak') >= 0) return 'the stake';
+    if (c.indexOf('perpetual') >= 0 || c.indexOf('derivative') >= 0) return 'the margin';
+    if (c.indexOf('prediction') >= 0) return 'the market position';
+    if (c.indexOf('curator') >= 0 || c.indexOf('allocator') >= 0) return 'the vault shares';
+    if (c.indexOf('stable') >= 0) return 'the stable balance';
+    if (c.indexOf('rwa') >= 0) return 'the yield asset';
+    if (c.indexOf('insurance') >= 0) return 'the cover';
+    return 'the position';
+  }
+  function weeklyActionFor(p) {
+    var c = (p.category || '').toLowerCase();
+    if (c.indexOf('lend') >= 0 || c.indexOf('cdp') >= 0 || c.indexOf('collateral') >= 0) return 'supply or borrow';
+    if (c.indexOf('dex') >= 0 || c.indexOf('yield') >= 0 || c.indexOf('leveraged farm') >= 0) return 'swap through the pool';
+    if (c.indexOf('bridge') >= 0) return 'bridge a small amount';
+    if (c.indexOf('staking') >= 0 || c.indexOf('restak') >= 0) return 'claim and restake the rewards';
+    if (c.indexOf('perpetual') >= 0 || c.indexOf('derivative') >= 0) return 'open and close a small hedge';
+    if (c.indexOf('prediction') >= 0) return 'place a market position';
+    if (c.indexOf('curator') >= 0 || c.indexOf('allocator') >= 0) return 'move a little between the vaults';
+    if (c.indexOf('stable') >= 0) return 'mint or redeem a little of the stable asset';
+    if (c.indexOf('rwa') >= 0) return 'claim the yield the position earned';
+    if (c.indexOf('insurance') >= 0) return 'check the cover is still active';
+    return 'do one more action in the app';
+  }
+  function rewardNounFor(p) {
+    var c = (p.category || '').toLowerCase();
+    if (c.indexOf('lend') >= 0 || c.indexOf('cdp') >= 0 || c.indexOf('collateral') >= 0) return 'the interest';
+    if (c.indexOf('dex') >= 0 || c.indexOf('yield') >= 0 || c.indexOf('leveraged farm') >= 0) return 'the trading fees';
+    if (c.indexOf('bridge') >= 0) return 'any points';
+    if (c.indexOf('staking') >= 0 || c.indexOf('restak') >= 0) return 'the staking rewards';
+    if (c.indexOf('perpetual') >= 0 || c.indexOf('derivative') >= 0) return 'any funding or rebate';
+    if (c.indexOf('prediction') >= 0) return 'any winnings';
+    if (c.indexOf('curator') >= 0 || c.indexOf('allocator') >= 0) return 'the yield';
+    if (c.indexOf('stable') >= 0) return 'the yield';
+    if (c.indexOf('rwa') >= 0) return 'the yield';
+    if (c.indexOf('insurance') >= 0) return 'any rebate';
+    return 'any points or rewards';
+  }
   function ageStep(p, gas) {
     var age = p.age_days;
     if (age !== null && age !== undefined && age < 180) {
@@ -160,15 +202,18 @@
     var capital = capitalFor(p);
     var hold = holdDaysFor(p.age_days);
     var gas = gasFor(chain);
+    var position = positionNounFor(p);
+    var weekly = weeklyActionFor(p);
+    var reward = rewardNounFor(p);
     return [
-      { text: 'Use a fresh wallet that holds only the funds you plan to farm, and keep its seed phrase offline.', cost: gas + ' of gas for the first transaction on ' + chain, time: '5 minutes' },
+      { text: 'Use a fresh wallet on ' + chain + ' that holds only the funds you plan to farm, and keep its seed phrase offline.', cost: gas + ' of gas for the first transaction on ' + chain, time: '5 minutes' },
       { text: actionFor(p, capital, chain), cost: '$' + capital + ' of capital and ' + gas + ' of gas', time: '15 minutes to set up' },
       { text: secondActionFor(p, capital, chain), cost: gas + ' of gas', time: '10 minutes' },
-      { text: 'Make one qualifying action each week on ' + p.name + ', such as a deposit, a borrow, a swap or a vote.', cost: gas + ' of gas a week', time: '10 minutes a week' },
-      { text: 'Hold the position for at least ' + hold + ' days so the activity is counted in more than one snapshot.', cost: 'the $' + capital + ' stays in the position', time: hold + ' days' },
+      { text: 'Once a week, ' + weekly + ' on ' + p.name + ' so the wallet shows steady activity.', cost: gas + ' of gas a week', time: '10 minutes a week' },
+      { text: 'Keep ' + position + ' open for at least ' + hold + ' days so the activity is counted in more than one snapshot.', cost: 'the $' + capital + ' stays in ' + position, time: hold + ' days' },
       ageStep(p, gas),
-      { text: "Before you withdraw, open the protocol's own points or rewards page and claim only from the link it publishes.", cost: 'no fee to check, and never pay to claim', time: '10 minutes' },
-      { text: 'Write the wallet, the dates and every transaction in a farm log, and cap this position at $' + capital + ' so a hack costs at most that.', cost: 'nothing but the log', time: '5 minutes' }
+      { text: 'Claim what ' + position + ' earned — ' + reward + ' — from the protocol\'s own page only, never from a link in a DM.', cost: 'no fee to check, and never pay to claim', time: '10 minutes' },
+      { text: 'Write the wallet, the dates and every transaction in a farm log, and cap ' + position + ' at $' + capital + ' so a hack costs at most that.', cost: 'nothing but the log', time: '5 minutes' }
     ].map(stepText);
   }
 
