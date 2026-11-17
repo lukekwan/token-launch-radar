@@ -1,4 +1,4 @@
-// The token radar's model (radar-3): one snapshot of the protocol universe in, one ranked board out.
+// The token radar's model (radar-4): one snapshot of the protocol universe in, one ranked board out.
 //
 // The board covers every slug in the snapshot's watchlist (the floor, never a ceiling) and may add
 // pre-token protocols below the watchlist floor: the early rows the radar exists to find. A protocol is
@@ -86,7 +86,7 @@ export const MODEL: ModelConstants = {
 };
 
 /** The model's version label: the dashboard names it and the rules quote it. */
-export const MODEL_VERSION = 'radar-3';
+export const MODEL_VERSION = 'radar-4';
 
 /** How many pre-token protocols below the watchlist floor the early radar carries, by TVL. */
 export const EARLY_ROWS = 160;
@@ -457,6 +457,54 @@ function secondActionFor(p: SnapshotProtocol, capital: number, chain: string): s
   return `Do one more on-chain action in the app, such as a swap or a vote, so the wallet is not a one-transaction farmer.`;
 }
 
+/** What the farmer holds, in the category's own words, so the hold and the claim name it. */
+function positionNounFor(p: SnapshotProtocol): string {
+  const c = (p.category ?? '').toLowerCase();
+  if (c.includes('lend') || c.includes('cdp') || c.includes('collateral')) return 'the supply position';
+  if (c.includes('dex') || c.includes('yield') || c.includes('leveraged farm')) return 'the LP position';
+  if (c.includes('bridge')) return 'the bridged funds';
+  if (c.includes('staking') || c.includes('restak')) return 'the stake';
+  if (c.includes('perpetual') || c.includes('derivative')) return 'the margin';
+  if (c.includes('prediction')) return 'the market position';
+  if (c.includes('curator') || c.includes('allocator')) return 'the vault shares';
+  if (c.includes('stable')) return 'the stable balance';
+  if (c.includes('rwa')) return 'the yield asset';
+  if (c.includes('insurance')) return 'the cover';
+  return 'the position';
+}
+
+/** The one weekly action, in the category's own words, so the week is not a generic chore. */
+function weeklyActionFor(p: SnapshotProtocol): string {
+  const c = (p.category ?? '').toLowerCase();
+  if (c.includes('lend') || c.includes('cdp') || c.includes('collateral')) return 'supply or borrow';
+  if (c.includes('dex') || c.includes('yield') || c.includes('leveraged farm')) return 'swap through the pool';
+  if (c.includes('bridge')) return 'bridge a small amount';
+  if (c.includes('staking') || c.includes('restak')) return 'claim and restake the rewards';
+  if (c.includes('perpetual') || c.includes('derivative')) return 'open and close a small hedge';
+  if (c.includes('prediction')) return 'place a market position';
+  if (c.includes('curator') || c.includes('allocator')) return 'move a little between the vaults';
+  if (c.includes('stable')) return 'mint or redeem a little of the stable asset';
+  if (c.includes('rwa')) return 'claim the yield the position earned';
+  if (c.includes('insurance')) return 'check the cover is still active';
+  return 'do one more action in the app';
+}
+
+/** What the position earns, in the category's own words, so the claim names it. */
+function rewardNounFor(p: SnapshotProtocol): string {
+  const c = (p.category ?? '').toLowerCase();
+  if (c.includes('lend') || c.includes('cdp') || c.includes('collateral')) return 'the interest';
+  if (c.includes('dex') || c.includes('yield') || c.includes('leveraged farm')) return 'the trading fees';
+  if (c.includes('bridge')) return 'any points';
+  if (c.includes('staking') || c.includes('restak')) return 'the staking rewards';
+  if (c.includes('perpetual') || c.includes('derivative')) return 'any funding or rebate';
+  if (c.includes('prediction')) return 'any winnings';
+  if (c.includes('curator') || c.includes('allocator')) return 'the yield';
+  if (c.includes('stable')) return 'the yield';
+  if (c.includes('rwa')) return 'the yield';
+  if (c.includes('insurance')) return 'any rebate';
+  return 'any points or rewards';
+}
+
 /** The age-specific step: early protocols are watched for their points announcement, old ones for a vote. */
 function ageStep(p: SnapshotProtocol, age: number | null, gas: string): FarmStep {
   if (age !== null && age < 180) {
@@ -489,9 +537,12 @@ export function farmSteps(p: SnapshotProtocol, age: number | null): FarmStep[] {
   const capital = capitalFor(p);
   const hold = holdDaysFor(age);
   const gas = gasFor(chain);
+  const position = positionNounFor(p);
+  const weekly = weeklyActionFor(p);
+  const reward = rewardNounFor(p);
   return [
     {
-      text: `Use a fresh wallet that holds only the funds you plan to farm, and keep its seed phrase offline.`,
+      text: `Use a fresh wallet on ${chain} that holds only the funds you plan to farm, and keep its seed phrase offline.`,
       cost: `${gas} of gas for the first transaction on ${chain}`,
       time: '5 minutes',
     },
@@ -506,23 +557,23 @@ export function farmSteps(p: SnapshotProtocol, age: number | null): FarmStep[] {
       time: '10 minutes',
     },
     {
-      text: `Make one qualifying action each week on ${p.name}, such as a deposit, a borrow, a swap or a vote.`,
+      text: `Once a week, ${weekly} on ${p.name} so the wallet shows steady activity.`,
       cost: `${gas} of gas a week`,
       time: '10 minutes a week',
     },
     {
-      text: `Hold the position for at least ${hold} days so the activity is counted in more than one snapshot.`,
-      cost: `the $${capital} stays in the position`,
+      text: `Keep ${position} open for at least ${hold} days so the activity is counted in more than one snapshot.`,
+      cost: `the $${capital} stays in ${position}`,
       time: `${hold} days`,
     },
     ageStep(p, age, gas),
     {
-      text: `Before you withdraw, open the protocol's own points or rewards page and claim only from the link it publishes.`,
+      text: `Claim what ${position} earned — ${reward} — from the protocol's own page only, never from a link in a DM.`,
       cost: 'no fee to check, and never pay to claim',
       time: '10 minutes',
     },
     {
-      text: `Write the wallet, the dates and every transaction in a farm log, and cap this position at $${capital} so a hack costs at most that.`,
+      text: `Write the wallet, the dates and every transaction in a farm log, and cap ${position} at $${capital} so a hack costs at most that.`,
       cost: 'nothing but the log',
       time: '5 minutes',
     },
