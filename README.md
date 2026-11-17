@@ -16,7 +16,7 @@ A token launch radar for [make.fun's token-radar-01 bounty](https://make.fun/bou
 - `screenshots/` — the board, a detail view, and a filtered view.
 - `dossier.json` — the summary the judge reads, built with the vendored make.fun library.
 
-## The model (radar-3)
+## The model (radar-4)
 
 Implied value follows from the snapshot's own figures, priced at the multiple the market already pays for a token in the same category:
 
@@ -37,7 +37,7 @@ A category with no live-token comps takes the overall median. Momentum is the pr
 
 ## Farm plans
 
-Each row carries an eight-step farm plan derived from the protocol's own record — its category, chains, TVL and age — with a cost and a time for every step: a fresh wallet, the main position, a second on-chain action so the wallet is not a one-transaction farmer, a weekly action, the hold, an age-specific step (early protocols: watch for the points announcement; old ones: vote once), the claim check, and a farm log with a position cap. Gas costs follow the chain the protocol lives on. The plan is a derivation, never a hand-written list of names.
+Each row carries an eight-step farm plan derived from the protocol's own record — its category, chains, TVL and age — with a cost and a time for every step. Every step is written in the category's own words: the wallet is opened on the protocol's chain, the main position and the second action follow the category (supply, liquidity, bridge, stake, margin, vault), the weekly action names the one thing that category does each week, the hold names the position it keeps open, the claim names what that position earned, and the log caps that same position. Gas costs follow the chain the protocol lives on. The plan is a derivation, never a hand-written list of names.
 
 ## Running it
 
